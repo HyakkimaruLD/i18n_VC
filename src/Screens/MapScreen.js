@@ -1,9 +1,13 @@
 import { View, Text, StyleSheet } from 'react-native'
+import { useThemeContext } from '../ThemeContext'
 
 export default function MapScreen() {
+    const { theme } = useThemeContext()
     return (
         <View style={styles.container}>
-            <Text>Map Screen</Text>
+            <Text style={{ color: theme === 'dark' ? 'white' : 'black' }}>
+                Map Screen
+            </Text>
         </View>
     )
 }
