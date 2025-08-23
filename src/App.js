@@ -16,6 +16,7 @@ export default function App() {
         changeLanguage(lang);
     }
 
+
     return (
         <View style={styles.container}>
             <Text>{t('welcome')}</Text>
