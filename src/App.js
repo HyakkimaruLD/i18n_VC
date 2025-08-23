@@ -1,30 +1,55 @@
-import {StatusBar} from 'expo-status-bar';
-import {Button, StyleSheet, Text, View} from 'react-native';
-import {useTranslation} from "react-i18next";
-import {useEffect} from "react";
-import {changeLanguage, loadLanguage} from "./i18n";
+import { StatusBar } from 'expo-status-bar'
+import { StyleSheet, Text } from 'react-native'
+import { NavigationContainer } from '@react-navigation/native'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { useTranslation } from 'react-i18next'
+import { useEffect } from 'react'
+import { changeLanguage, loadLanguage } from './i18n'
+
+import CalendarScreen from './Screens/CalendarScreen'
+import MapScreen from './Screens/MapScreen'
+import NewScreen from './Screens/NewScreen'
+
+const Tab = createBottomTabNavigator()
 
 export default function App() {
-    const {t} = useTranslation();
+    const { t } = useTranslation()
 
     useEffect(() => {
         loadLanguage()
-    }, []);
-
-
-    const handleLanguageChange = (lang)=>{
-        changeLanguage(lang);
-    }
-
+    }, [])
 
     return (
-        <View style={styles.container}>
-            <Text>{t('welcome')}</Text>
-            <Button title={t('english')} onPress={()=>{handleLanguageChange('en')}}/>
-            <Button title={t('ukrainian')} onPress={()=>{handleLanguageChange('uk')}}/>
-            <StatusBar style="auto"/>
-        </View>
-    );
+        <NavigationContainer>
+            <Tab.Navigator
+                screenOptions={({ route }) => ({
+                    tabBarIcon: ({ color }) => {
+                        let icon
+                        if (route.name === 'Calendar')
+                        {
+                            icon = '📅'
+                        }
+                        else if (route.name === 'Map')
+                        {
+                            icon = '🗺️'
+                        }
+                        else if (route.name === 'New')
+                        {
+                            icon = '➕'
+                        }
+                        return <Text style={{ fontSize: 18, color }}>{icon}</Text>
+                    },
+                    tabBarActiveTintColor: 'tomato',
+                    tabBarInactiveTintColor: 'gray',
+                })}
+            >
+                <Tab.Screen name="Calendar" component={CalendarScreen} />
+                <Tab.Screen name="Map" component={MapScreen} />
+                <Tab.Screen name="New" component={NewScreen} />
+            </Tab.Navigator>
+            <StatusBar style="auto" />
+        </NavigationContainer>
+    )
 }
 
 const styles = StyleSheet.create({
@@ -34,4 +59,4 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-});
+})
