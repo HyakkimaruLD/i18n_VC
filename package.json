@@ -9,9 +9,13 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.2.0",
     "expo": "~53.0.22",
+    "expo-localization": "^16.1.6",
     "expo-status-bar": "~2.2.3",
+    "i18next": "^25.4.0",
     "react": "19.0.0",
+    "react-i18next": "^15.7.1",
     "react-native": "0.79.6"
   },
   "devDependencies": {
