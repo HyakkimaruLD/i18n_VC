@@ -18,18 +18,23 @@ export default function LanguageScreen() {
             </Text>
             <TouchableOpacity
                 style={[styles.button, theme === 'dark' ? styles.buttonDark : styles.buttonLight]}
-                onPress={() => handleLanguageChange('en')}
-            >
+                onPress={() => handleLanguageChange('en')}>
                 <Text style={[styles.buttonText, { color: theme === 'dark' ? 'white' : 'black' }]}>
                     {t('english')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity
                 style={[styles.button, theme === 'dark' ? styles.buttonDark : styles.buttonLight]}
-                onPress={() => handleLanguageChange('uk')}
-            >
+                onPress={() => handleLanguageChange('uk')}>
                 <Text style={[styles.buttonText, { color: theme === 'dark' ? 'white' : 'black' }]}>
                     {t('ukrainian')}
+                </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                style={[styles.button, theme === 'dark' ? styles.buttonDark : styles.buttonLight]}
+                onPress={() => handleLanguageChange('ja')}>
+                <Text style={[styles.buttonText, { color: theme === 'dark' ? 'white' : 'black' }]}>
+                    {t('japanese')}
                 </Text>
             </TouchableOpacity>
         </View>
