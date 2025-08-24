@@ -12,6 +12,7 @@ import { ThemeContext, useThemeContext } from './ThemeContext'
 import CalendarScreen from './Screens/CalendarScreen'
 import MapScreen from './Screens/MapScreen'
 import NewScreen from './Screens/NewScreen'
+import LanguageScreen from './Screens/LanguageScreen'
 
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
@@ -19,20 +20,21 @@ const Drawer = createDrawerNavigator()
 // Tabs
 function Tabs() {
     const { theme } = useThemeContext()
+    const { t } = useTranslation()
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 tabBarIcon: ({ color }) => {
                     let icon
-                    if (route.name === 'Calendar')
+                    if (route.name === t('calendar'))
                     {
                         icon = '📅'
                     }
-                    else if (route.name === 'Map')
+                    else if (route.name === t('map'))
                     {
                         icon = '🗺️'
                     }
-                    else if (route.name === 'New')
+                    else if (route.name === t('new'))
                     {
                         icon = '➕'
                     }
@@ -41,9 +43,9 @@ function Tabs() {
                 tabBarActiveTintColor: theme === 'dark' ? 'white' : 'tomato',
                 tabBarInactiveTintColor: theme === 'dark' ? 'gray' : 'gray',
             })}>
-            <Tab.Screen name="Calendar" component={CalendarScreen} />
-            <Tab.Screen name="Map" component={MapScreen} />
-            <Tab.Screen name="New" component={NewScreen} />
+            <Tab.Screen name={t('calendar')} component={CalendarScreen} />
+            <Tab.Screen name={t('map')} component={MapScreen} />
+            <Tab.Screen name={t('new')} component={NewScreen} />
         </Tab.Navigator>
     )
 }
@@ -51,49 +53,41 @@ function Tabs() {
 // Drawer screens
 function ThemeScreen() {
     const { theme, toggleTheme } = useThemeContext()
+    const { t } = useTranslation()
     return (
         <View style={[styles.container, theme === 'dark' ? styles.dark : styles.light]}>
             <Text style={{ color: theme === 'dark' ? 'white' : 'black' }}>
-                Поточна тема: {theme === 'dark' ? 'Чорна' : 'Біла'}
+                {t('current_theme')}: {theme === 'dark' ? t('dark') : t('light')}
             </Text>
             <TouchableOpacity onPress={toggleTheme} style={{ marginTop: 20 }}>
                 <Text style={{ color: theme === 'dark' ? 'lightblue' : 'blue', fontSize: 16 }}>
-                    Змінити тему
+                    {t('change_theme')}
                 </Text>
             </TouchableOpacity>
         </View>
     )
 }
 
-function LanguageScreen() {
-    const { theme } = useThemeContext()
-    return (
-        <View style={[styles.container, theme === 'dark' ? styles.dark : styles.light]}>
-            <Text style={{ color: theme === 'dark' ? 'white' : 'black' }}>
-                Вибір мови (укр/англ, поки не працює)
-            </Text>
-        </View>
-    )
-}
-
 function ProfileScreen() {
     const { theme } = useThemeContext()
+    const { t } = useTranslation()
     return (
         <View style={[styles.container, theme === 'dark' ? styles.dark : styles.light]}>
-            <Text style={{ color: theme === 'dark' ? 'white' : 'black' }}>Це ви</Text>
+            <Text style={{ color: theme === 'dark' ? 'white' : 'black' }}>{t('profile')}</Text>
         </View>
     )
 }
 
 function LogoutScreen({ navigation }) {
     const { theme } = useThemeContext()
+    const { t } = useTranslation()
     useEffect(() => {
-        Alert.alert('Ви вийшли')
+        Alert.alert(t('logged_out'))
         navigation.goBack()
     }, [])
     return (
         <View style={[styles.container, theme === 'dark' ? styles.dark : styles.light]}>
-            <Text style={{ color: theme === 'dark' ? 'white' : 'black' }}>Ви вийшли</Text>
+            <Text style={{ color: theme === 'dark' ? 'white' : 'black' }}>{t('logged_out')}</Text>
         </View>
     )
 }
@@ -120,7 +114,7 @@ export default function App() {
     if (theme === null) {
         return (
             <View style={styles.container}>
-                <Text>Loading...</Text>
+                <Text>{t('loading')}</Text>
             </View>
         )
     }
@@ -128,12 +122,12 @@ export default function App() {
     return (
         <ThemeContext.Provider value={{ theme, toggleTheme }}>
             <NavigationContainer theme={theme === 'dark' ? DarkTheme : DefaultTheme}>
-                <Drawer.Navigator initialRouteName="Home">
-                    <Drawer.Screen name="Home" component={Tabs} />
-                    <Drawer.Screen name="Theme" component={ThemeScreen} />
-                    <Drawer.Screen name="Language" component={LanguageScreen} />
-                    <Drawer.Screen name="Profile" component={ProfileScreen} />
-                    <Drawer.Screen name="Logout" component={LogoutScreen} />
+                <Drawer.Navigator initialRouteName={t('home')}>
+                    <Drawer.Screen name={t('home')} component={Tabs} />
+                    <Drawer.Screen name={t('theme')} component={ThemeScreen} />
+                    <Drawer.Screen name={t('language')} component={LanguageScreen} />
+                    <Drawer.Screen name={t('profile')} component={ProfileScreen} />
+                    <Drawer.Screen name={t('logout')} component={LogoutScreen} />
                 </Drawer.Navigator>
                 <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
             </NavigationContainer>

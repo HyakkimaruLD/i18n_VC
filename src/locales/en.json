@@ -4,5 +4,17 @@
   "ukrainian": "Ukrainian",
   "change_language": "Change language",
   "close": "Close",
-  "select_language": "Select language"
+  "select_language": "Select language",
+  "calendar": "Calendar",
+  "map": "Map",
+  "new": "New",
+  "home": "Home",
+  "theme": "Theme",
+  "language": "Language",
+  "profile": "Profile",
+  "logout": "Logout",
+  "current_theme": "Current theme",
+  "change_theme": "Change theme",
+  "logged_out": "You have logged out",
+  "loading": "Loading..."
 }

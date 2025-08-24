@@ -4,5 +4,17 @@
   "ukrainian": "Українська",
   "change_language": "Змінити мову",
   "close": "Закрити",
-  "select_language": "Оберіть мову"
+  "select_language": "Оберіть мову",
+  "calendar": "Календар",
+  "map": "Карта",
+  "new": "Новий",
+  "home": "Домівка",
+  "theme": "Тема",
+  "language": "Мова",
+  "profile": "Профіль",
+  "logout": "Вийти",
+  "current_theme": "Поточна тема",
+  "change_theme": "Змінити тему",
+  "logged_out": "Ви вийшли",
+  "loading": "Завантаження..."
 }
