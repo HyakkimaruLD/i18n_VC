@@ -2,6 +2,7 @@
   "welcome": "Ласкаво Просимо!",
   "english": "Англійська",
   "ukrainian": "Українська",
+  "japanese": "Японська",
   "change_language": "Змінити мову",
   "close": "Закрити",
   "select_language": "Оберіть мову",
@@ -16,5 +17,18 @@
   "current_theme": "Поточна тема",
   "change_theme": "Змінити тему",
   "logged_out": "Ви вийшли",
-  "loading": "Завантаження..."
+  "loading": "Завантаження...",
+  "permission_required": "Необхіден дозвіл",
+  "camera_permission_needed": "Дозвіл камери необхідний для зйомки фото.",
+  "error": "Помилка",
+  "please_fill_all_fields": "Будь ласка, заповніть усі поля та зробіть фото.",
+  "success": "Успіх",
+  "violation_saved": "Порушення збережено.",
+  "failed_to_save_violation": "Не вдалося зберегти порушення.",
+  "take_photo": "Зробити фото",
+  "save_violation": "Зберегти порушення",
+  "saved_violations": "Збережені порушення (Тимчасовий список для тестування):",
+  "location": "Місцезнаходження:",
+  "description": "Опис:",
+  "created": "Створено:"
 }

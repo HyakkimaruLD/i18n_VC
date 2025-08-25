@@ -17,5 +17,18 @@
   "current_theme": "現在のテーマ",
   "change_theme": "テーマを変更",
   "logged_out": "ログアウトしました",
-  "loading": "読み込み中..."
+  "loading": "読み込み中...",
+  "permission_required": "許可が必要です",
+  "camera_permission_needed": "写真を撮るにはカメラの許可が必要です。",
+  "error": "エラー",
+  "please_fill_all_fields": "すべてのフィールドを埋めて写真を撮ってください。",
+  "success": "成功",
+  "violation_saved": "違反が保存されました。",
+  "failed_to_save_violation": "違反の保存に失敗しました。",
+  "take_photo": "写真を撮る",
+  "save_violation": "違反を保存",
+  "saved_violations": "保存された違反 (テスト用の一時リスト):",
+  "location": "場所:",
+  "description": "説明:",
+  "created": "作成日:"
 }

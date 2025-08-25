@@ -2,6 +2,7 @@
   "welcome": "Welcome!",
   "english": "English",
   "ukrainian": "Ukrainian",
+  "japanese": "Japanese",
   "change_language": "Change language",
   "close": "Close",
   "select_language": "Select language",
@@ -16,5 +17,18 @@
   "current_theme": "Current theme",
   "change_theme": "Change theme",
   "logged_out": "You have logged out",
-  "loading": "Loading..."
+  "loading": "Loading...",
+  "permission_required": "Permission required",
+  "camera_permission_needed": "Camera permission is required to take photos.",
+  "error": "Error",
+  "please_fill_all_fields": "Please fill all fields and take a photo.",
+  "success": "Success",
+  "violation_saved": "Violation saved.",
+  "failed_to_save_violation": "Failed to save violation.",
+  "take_photo": "Take Photo",
+  "save_violation": "Save Violation",
+  "saved_violations": "Saved Violations (Temporary List for Testing):",
+  "location": "Location:",
+  "description": "Description:",
+  "created": "Created:"
 }
