@@ -40,6 +40,45 @@ export default function NewScreen() {
         }
     }
 
+    const uploadImageToCloudinary = async () => {
+        if (!photoUri) return null
+
+        const fileName = photoUri.split('/').pop()
+        const extension = fileName.split('.').pop().toLowerCase()
+
+        let mimeType = 'image/jpeg'
+        if (extension === 'png') mimeType = 'image/png'
+        else if (extension === 'gif') mimeType = 'image/gif'
+        else if (extension === 'heic') mimeType = 'image/heic'
+        else if (extension === 'webp') mimeType = 'image/webp'
+
+        const formData = new FormData()
+        formData.append('file', {
+            uri: photoUri,
+            name: fileName,
+            type: mimeType,
+        })
+        formData.append('upload_preset', 'TestTest')
+
+        try {
+            const response = await fetch(
+                'https://api.cloudinary.com/v1_1/dyqoncpu7/upload',
+                { method: 'POST', body: formData }
+            )
+            const data = await response.json()
+            if (data.secure_url) {
+                console.log('✅ Uploaded to Cloudinary:', data.secure_url)
+                return data.secure_url
+            } else {
+                console.log('Cloudinary upload error:', data)
+                return null
+            }
+        } catch (error) {
+            console.log('Upload failed:', error)
+            return null
+        }
+    }
+
     const saveViolation = async () => {
         if (!photoUri || !location || !description) {
             Alert.alert(t('error'), t('please_fill_all_fields'))
@@ -47,7 +86,10 @@ export default function NewScreen() {
         }
 
         try {
-            await insertViolation(photoUri, location, description)
+            const cloudUrl = await uploadImageToCloudinary()
+
+            await insertViolation(cloudUrl || photoUri, location, description)
+
             Alert.alert(t('success'), t('violation_saved'))
             setPhotoUri(null)
             setLocation('')
