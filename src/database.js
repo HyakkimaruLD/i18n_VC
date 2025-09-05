@@ -9,18 +9,28 @@ async function getDb() {
     return dbPromise
 }
 
+
 export async function initDatabase() {
+
     const db = await getDb()
-    await db.execAsync(
-        'CREATE TABLE IF NOT EXISTS violations (id INTEGER PRIMARY KEY AUTOINCREMENT, photo_uri TEXT, location TEXT, description TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);'
-    )
+    await db.execAsync(`
+        CREATE TABLE IF NOT EXISTS violations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            photo_uri TEXT,
+            latitude REAL,
+            longitude REAL,
+            description TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+    `)
 }
 
-export async function insertViolation(photoUri, location, description) {
+
+export async function insertViolation(photoUri, latitude, longitude, description) {
     const db = await getDb()
     await db.runAsync(
-        'INSERT INTO violations (photo_uri, location, description) VALUES (?, ?, ?);',
-        [photoUri, location, description]
+        'INSERT INTO violations (photo_uri, latitude, longitude, description) VALUES (?, ?, ?, ?);',
+        [photoUri, latitude, longitude, description]
     )
 }
 
