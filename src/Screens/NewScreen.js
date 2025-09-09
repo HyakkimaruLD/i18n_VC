@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import * as ImagePicker from 'expo-image-picker'
 import * as Location from 'expo-location'
 import { initDatabase, insertViolation, loadViolations } from '../database'
-
+//
 export default function NewScreen() {
     const { theme } = useThemeContext()
     const { t } = useTranslation()

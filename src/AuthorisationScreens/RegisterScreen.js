@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { View, Text, TextInput, Button, Alert } from 'react-native'
 import { registerUser } from '../database'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-
+//
 export default function RegisterScreen({ navigation }) {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')

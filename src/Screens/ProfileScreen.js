@@ -3,7 +3,7 @@ import { View, Text, Button, Alert } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useTranslation } from 'react-i18next'
 import { useThemeContext } from '../ThemeContext'
-
+//
 export default function ProfileScreen({ navigation }) {
     const { theme } = useThemeContext()
     const { t } = useTranslation()

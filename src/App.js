@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { loadLanguage } from './i18n'
 import { ThemeContext, useThemeContext } from './ThemeContext'
 import { initDatabase } from './database'
-
+//
 import CalendarScreen from './Screens/CalendarScreen'
 import MapScreen from './Screens/MapScreen'
 import NewScreen from './Screens/NewScreen'
