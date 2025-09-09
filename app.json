@@ -20,7 +20,13 @@
         "foregroundImage": ".src/assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION", "FOREGROUND_SERVICE"],
+      "edgeToEdgeEnabled": true,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAOVYRIgupAurZup5y1PRh8Ismb1A3lLao&libraries=places&callback"
+        }
+      }
     },
     "web": {
       "favicon": ".src/assets/favicon.png"

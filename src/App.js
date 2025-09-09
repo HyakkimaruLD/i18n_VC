@@ -3,21 +3,26 @@ import { StyleSheet, Text, View, Alert, TouchableOpacity } from 'react-native'
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { useTranslation } from 'react-i18next'
 import { useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { loadLanguage } from './i18n'
 import { ThemeContext, useThemeContext } from './ThemeContext'
+import { initDatabase } from './database'
 
 import CalendarScreen from './Screens/CalendarScreen'
 import MapScreen from './Screens/MapScreen'
 import NewScreen from './Screens/NewScreen'
 import LanguageScreen from './Screens/LanguageScreen'
+import ProfileScreen from './Screens/ProfileScreen'
+import LoginScreen from './AuthorisationScreens/LoginScreen'
+import RegisterScreen from './AuthorisationScreens/RegisterScreen'
 
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
+const Stack = createNativeStackNavigator()
 
-// Tabs
 function Tabs() {
     const { theme } = useThemeContext()
     const { t } = useTranslation()
@@ -26,18 +31,9 @@ function Tabs() {
             screenOptions={({ route }) => ({
                 tabBarIcon: ({ color }) => {
                     let icon
-                    if (route.name === t('calendar'))
-                    {
-                        icon = '📅'
-                    }
-                    else if (route.name === t('map'))
-                    {
-                        icon = '🗺️'
-                    }
-                    else if (route.name === t('new'))
-                    {
-                        icon = '➕'
-                    }
+                    if (route.name === t('calendar')) icon = '📅'
+                    else if (route.name === t('map')) icon = '🗺️'
+                    else if (route.name === t('new')) icon = '➕'
                     return <Text style={{ fontSize: 18, color }}>{icon}</Text>
                 },
                 tabBarActiveTintColor: theme === 'dark' ? 'white' : 'tomato',
@@ -50,7 +46,6 @@ function Tabs() {
     )
 }
 
-// Drawer screens
 function ThemeScreen() {
     const { theme, toggleTheme } = useThemeContext()
     const { t } = useTranslation()
@@ -68,27 +63,34 @@ function ThemeScreen() {
     )
 }
 
-function ProfileScreen() {
-    const { theme } = useThemeContext()
-    const { t } = useTranslation()
-    return (
-        <View style={[styles.container, theme === 'dark' ? styles.dark : styles.light]}>
-            <Text style={{ color: theme === 'dark' ? 'white' : 'black' }}>{t('profile')}</Text>
-        </View>
-    )
-}
-
 function LogoutScreen({ navigation }) {
     const { theme } = useThemeContext()
     const { t } = useTranslation()
     useEffect(() => {
-        Alert.alert(t('logged_out'))
-        navigation.goBack()
-    }, [])
+        const doLogout = async () => {
+            await AsyncStorage.removeItem('loggedInUser')
+            Alert.alert(t('logged_out'))
+            navigation.navigate('Main', { screen: t('profile') })
+        }
+        doLogout()
+    }, [navigation])
+
     return (
         <View style={[styles.container, theme === 'dark' ? styles.dark : styles.light]}>
             <Text style={{ color: theme === 'dark' ? 'white' : 'black' }}>{t('logged_out')}</Text>
         </View>
+    )
+}
+
+function DrawerNavigator() {
+    const { t } = useTranslation()
+    return (
+        <Drawer.Navigator initialRouteName={t('home')}>
+            <Drawer.Screen name={t('home')} component={Tabs} />
+            <Drawer.Screen name={t('theme')} component={ThemeScreen} />
+            <Drawer.Screen name={t('language')} component={LanguageScreen} />
+            <Drawer.Screen name={t('profile')} component={ProfileScreen} />
+        </Drawer.Navigator>
     )
 }
 
@@ -98,11 +100,12 @@ export default function App() {
 
     useEffect(() => {
         loadLanguage()
-        const loadTheme = async () => {
+        const initApp = async () => {
+            await initDatabase()
             const savedTheme = await AsyncStorage.getItem('appTheme')
             setTheme(savedTheme || 'light')
         }
-        loadTheme()
+        initApp()
     }, [])
 
     const toggleTheme = async () => {
@@ -122,13 +125,11 @@ export default function App() {
     return (
         <ThemeContext.Provider value={{ theme, toggleTheme }}>
             <NavigationContainer theme={theme === 'dark' ? DarkTheme : DefaultTheme}>
-                <Drawer.Navigator initialRouteName={t('home')}>
-                    <Drawer.Screen name={t('home')} component={Tabs} />
-                    <Drawer.Screen name={t('theme')} component={ThemeScreen} />
-                    <Drawer.Screen name={t('language')} component={LanguageScreen} />
-                    <Drawer.Screen name={t('profile')} component={ProfileScreen} />
-                    <Drawer.Screen name={t('logout')} component={LogoutScreen} />
-                </Drawer.Navigator>
+                <Stack.Navigator screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="Main" component={DrawerNavigator} />
+                    <Stack.Screen name="Login" component={LoginScreen} />
+                    <Stack.Screen name="Register" component={RegisterScreen} />
+                </Stack.Navigator>
                 <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
             </NavigationContainer>
         </ThemeContext.Provider>
