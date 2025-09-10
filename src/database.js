@@ -1,5 +1,5 @@
 import * as SQLite from 'expo-sqlite'
-//
+
 let dbPromise = null
 
 async function getDb() {

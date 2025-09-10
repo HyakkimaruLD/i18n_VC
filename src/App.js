@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { loadLanguage } from './i18n'
 import { ThemeContext, useThemeContext } from './ThemeContext'
 import { initDatabase } from './database'
-//
+
 import CalendarScreen from './Screens/CalendarScreen'
 import MapScreen from './Screens/MapScreen'
 import NewScreen from './Screens/NewScreen'
@@ -62,25 +62,25 @@ function ThemeScreen() {
         </View>
     )
 }
-
-function LogoutScreen({ navigation }) {
-    const { theme } = useThemeContext()
-    const { t } = useTranslation()
-    useEffect(() => {
-        const doLogout = async () => {
-            await AsyncStorage.removeItem('loggedInUser')
-            Alert.alert(t('logged_out'))
-            navigation.navigate('Main', { screen: t('profile') })
-        }
-        doLogout()
-    }, [navigation])
-
-    return (
-        <View style={[styles.container, theme === 'dark' ? styles.dark : styles.light]}>
-            <Text style={{ color: theme === 'dark' ? 'white' : 'black' }}>{t('logged_out')}</Text>
-        </View>
-    )
-}
+//
+// function LogoutScreen({ navigation }) {
+//     const { theme } = useThemeContext()
+//     const { t } = useTranslation()
+//     useEffect(() => {
+//         const doLogout = async () => {
+//             await AsyncStorage.removeItem('loggedInUser')
+//             Alert.alert(t('logged_out'))
+//             navigation.navigate('Main', { screen: t('profile') })
+//         }
+//         doLogout()
+//     }, [navigation])
+//
+//     return (
+//         <View style={[styles.container, theme === 'dark' ? styles.dark : styles.light]}>
+//             <Text style={{ color: theme === 'dark' ? 'white' : 'black' }}>{t('logged_out')}</Text>
+//         </View>
+//     )
+// }
 
 function DrawerNavigator() {
     const { t } = useTranslation()
