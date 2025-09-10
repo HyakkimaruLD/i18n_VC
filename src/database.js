@@ -9,30 +9,27 @@ async function getDb() {
     return dbPromise
 }
 
-
 export async function initDatabase() {
-
     const db = await getDb()
     await db.execAsync(`
         CREATE TABLE IF NOT EXISTS violations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            photo_uri TEXT,
-            latitude REAL,
-            longitude REAL,
-            description TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                                                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                  photo_uri TEXT,
+                                                  latitude REAL,
+                                                  longitude REAL,
+                                                  description TEXT,
+                                                  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
     `)
 
     await db.execAsync(`
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE,
-            password TEXT
+                                             id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                             email TEXT UNIQUE,
+                                             password TEXT
         );
     `)
 }
-
 
 export async function insertViolation(photoUri, latitude, longitude, description) {
     const db = await getDb()
@@ -45,6 +42,14 @@ export async function insertViolation(photoUri, latitude, longitude, description
 export async function loadViolations() {
     const db = await getDb()
     return await db.getAllAsync('SELECT * FROM violations;')
+}
+
+export async function loadViolationsByDate(date) {
+    const db = await getDb()
+    return await db.getAllAsync(
+        'SELECT * FROM violations WHERE date(created_at) = ?;',
+        [date]
+    )
 }
 
 export async function registerUser(email, password) {

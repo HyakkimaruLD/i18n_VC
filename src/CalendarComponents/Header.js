@@ -1,8 +1,10 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useThemeContext } from '../ThemeContext'
+import { useTranslation } from 'react-i18next'
 
 const Header = ({ month, year, onPrev, onNext, onToday }) => {
+    const { t } = useTranslation()
     const { theme } = useThemeContext()
     return (
         <View style={[styles.header, theme === 'dark' ? styles.darkHeader : styles.lightHeader]}>
@@ -12,7 +14,7 @@ const Header = ({ month, year, onPrev, onNext, onToday }) => {
                 </Text>
                 <TouchableOpacity onPress={onToday}>
                     <Text style={[styles.today, theme === 'dark' ? styles.darkToday : styles.lightToday]}>
-                        Today
+                        {t('today')}
                     </Text>
                 </TouchableOpacity>
             </View>
