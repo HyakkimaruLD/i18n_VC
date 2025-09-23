@@ -18,4 +18,10 @@ export class AuthService {
         const user = await db.get('SELECT * FROM users WHERE email = ? AND password = ?;', [email, password])
         return user || null
     }
+
+    async getAllUsers() {
+        const db = await getDb()
+        const users = await db.all(`SELECT id, email, password FROM users`)
+        return users
+    }
 }

@@ -3,6 +3,8 @@ import { View, Text, Button, Alert } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useTranslation } from 'react-i18next'
 import { useThemeContext } from '../ThemeContext'
+import NetInfo from '@react-native-community/netinfo'
+import { loginUser } from '../api/authApi'
 
 export default function ProfileScreen({ navigation }) {
     const { theme } = useThemeContext()
@@ -11,7 +13,21 @@ export default function ProfileScreen({ navigation }) {
 
     const loadUser = async () => {
         const storedUser = await AsyncStorage.getItem('loggedInUser')
-        setUser(storedUser ? JSON.parse(storedUser) : null)
+        let parsedUser = storedUser ? JSON.parse(storedUser) : null
+
+        const net = await NetInfo.fetch()
+        if (net.isConnected && parsedUser) {
+            try {
+                const response = await loginUser({ email: parsedUser.email, password: parsedUser.password })
+                if (response.data?.user) {
+                    parsedUser = response.data.user
+                }
+            } catch (e) {
+                console.log('Server auth failed, using local data')
+            }
+        }
+
+        setUser(parsedUser)
     }
 
     useEffect(() => {

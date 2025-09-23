@@ -9,5 +9,7 @@ export function createAuthRouter(service: AuthService) {
     router.post('/register', ctrl.register)
     router.post('/login', ctrl.login)
 
+    router.get('/users', ctrl.listUsers)
+
     return router
 }

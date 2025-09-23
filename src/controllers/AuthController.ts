@@ -43,4 +43,9 @@ export class AuthController {
         }
         ctx.body = { ok: true, user: { id: user.id, email: user.email } }
     }
+
+    listUsers = async (ctx: Context) => {
+        const users: { id: number; email: string, password: string }[] = await this.service.getAllUsers()
+        ctx.body = users
+    }
 }

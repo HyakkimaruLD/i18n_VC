@@ -1,22 +1,37 @@
 import React, { useState } from 'react'
 import { View, Text, TextInput, Button, Alert } from 'react-native'
-import { registerUser } from '../database'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import NetInfo from '@react-native-community/netinfo'
+import { registerUser as registerUserAPI } from '../api/authApi'
 
 export default function RegisterScreen({ navigation }) {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
     const handleRegister = async () => {
-        const success = await registerUser(email, password)
-        if (success) {
-            const newUser = { email, password }
-            await AsyncStorage.setItem('loggedInUser', JSON.stringify(newUser))
-            Alert.alert('Success', 'User registered and logged in!')
-            navigation.replace('Main')
-        } else {
-            Alert.alert('Error', 'User already exists')
+        const userData = { email, password }
+        const net = await NetInfo.fetch()
+
+        if (net.isConnected) {
+            try {
+                const response = await registerUserAPI(userData)
+                if (response.data?.ok) {
+                    await AsyncStorage.setItem('loggedInUser', JSON.stringify(userData))
+                    Alert.alert('Success', 'User registered online and logged in!')
+                    navigation.replace('Main')
+                    return
+                } else {
+                    Alert.alert('Error', response.data?.error || 'Registration failed online')
+                    return
+                }
+            } catch (e) {
+                console.log('Server unavailable, saving locally', e)
+            }
         }
+
+        await AsyncStorage.setItem('loggedInUser', JSON.stringify(userData))
+        Alert.alert('Success', 'User registered locally (offline)!')
+        navigation.replace('Main')
     }
 
     return (

@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react'
-import { View, Text, Modal, Image, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, Modal, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native'
 import MapView, { Marker } from 'react-native-maps'
 import { useThemeContext } from '../ThemeContext'
 import { useTranslation } from 'react-i18next'
 import { loadViolations } from '../database'
+import * as Location from 'expo-location'
 
 export default function MapScreen() {
     const { theme } = useThemeContext()
     const { t } = useTranslation()
     const [violations, setViolations] = useState([])
     const [selected, setSelected] = useState(null)
+    const [region, setRegion] = useState(null)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -19,28 +21,46 @@ export default function MapScreen() {
         fetchData()
     }, [])
 
+    useEffect(() => {
+        const getLocation = async () => {
+            let { status } = await Location.requestForegroundPermissionsAsync()
+            if (status !== 'granted') {
+                Alert.alert(t('permission_required'), t('location_permission_needed'))
+                return
+            }
+
+            let location = await Location.getCurrentPositionAsync({})
+            setRegion({
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+                latitudeDelta: 0.05,
+                longitudeDelta: 0.05,
+            })
+        }
+
+        getLocation()
+    }, [])
+
     return (
         <View style={{ flex: 1 }}>
-            <MapView
-                style={{ flex: 1 }}
-                initialRegion={{
-                    latitude: 37.4,
-                    longitude: -122.1,
-                    latitudeDelta: 6,
-                    longitudeDelta: 6,
-                }}
-            >
-                {violations.map(v => (
-                    <Marker
-                        key={v.id}
-                        coordinate={{ latitude: v.latitude, longitude: v.longitude }}
-                        title={t('description')}
-                        description={v.description}
-                        onPress={() => setSelected(v)}
-                    />
-                ))}
-            </MapView>
-            
+            {region && (
+                <MapView
+                    style={{ flex: 1 }}
+                    initialRegion={region}
+                    showsUserLocation={true}
+                >
+                    {violations.map(v => (
+                        <Marker
+                            key={v.id}
+                            coordinate={{ latitude: v.latitude, longitude: v.longitude }}
+                            title={t('description')}
+                            description={v.description}
+                            onPress={() => setSelected(v)}
+                        />
+                    ))}
+                </MapView>
+            )}
+
             <Modal visible={!!selected} transparent animationType="slide">
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>

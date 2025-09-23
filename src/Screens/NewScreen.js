@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { useState, useEffect } from 'react'
 import * as ImagePicker from 'expo-image-picker'
 import * as Location from 'expo-location'
+import NetInfo from '@react-native-community/netinfo'
 import { initDatabase, insertViolation, loadViolations } from '../database'
+import { createViolation } from '../api/violationApi'
 
 export default function NewScreen() {
     const { theme } = useThemeContext()
@@ -53,10 +55,8 @@ export default function NewScreen() {
 
     const uploadImageToCloudinary = async () => {
         if (!photoUri) return null
-
         const fileName = photoUri.split('/').pop()
         const extension = fileName.split('.').pop().toLowerCase()
-
         let mimeType = 'image/jpeg'
         if (extension === 'png') mimeType = 'image/png'
         else if (extension === 'gif') mimeType = 'image/gif'
@@ -72,18 +72,10 @@ export default function NewScreen() {
         formData.append('upload_preset', 'TestTest')
 
         try {
-            const response = await fetch(
-                'https://api.cloudinary.com/v1_1/dyqoncpu7/upload',
-                { method: 'POST', body: formData }
-            )
+            const response = await fetch('https://api.cloudinary.com/v1_1/dyqoncpu7/upload',
+                { method: 'POST', body: formData })
             const data = await response.json()
-            if (data.secure_url) {
-                console.log('✅ Uploaded to Cloudinary:', data.secure_url)
-                return data.secure_url
-            } else {
-                console.log('Cloudinary upload error:', data)
-                return null
-            }
+            return data.secure_url || null
         } catch (error) {
             console.log('Upload failed:', error)
             return null
@@ -99,6 +91,16 @@ export default function NewScreen() {
         try {
             const cloudUrl = await uploadImageToCloudinary()
             await insertViolation(cloudUrl || photoUri, coords.latitude, coords.longitude, description)
+
+            const net = await NetInfo.fetch()
+            if (net.isConnected) {
+                await createViolation({
+                    photo_uri: cloudUrl || photoUri,
+                    latitude: coords.latitude,
+                    longitude: coords.longitude,
+                    description
+                })
+            }
 
             Alert.alert(t('success'), t('violation_saved'))
             setPhotoUri(null)
@@ -134,19 +136,6 @@ export default function NewScreen() {
             <TouchableOpacity style={styles.button} onPress={saveViolation}>
                 <Text style={styles.buttonText}>{t('save_violation')}</Text>
             </TouchableOpacity>
-
-            <Text style={{ color: theme === 'dark' ? 'white' : 'black', fontSize: 16, marginTop: 20, marginBottom: 10 }}>
-                {t('saved_violations')}
-            </Text>
-            {violations.map((item) => (
-                <View key={item.id} style={styles.listItem}>
-                    <Image source={{ uri: item.photo_uri }} style={styles.listImage} />
-                    <Text style={{ color: theme === 'dark' ? 'white' : 'black' }}>{t('lat')}: {item.latitude}</Text>
-                    <Text style={{ color: theme === 'dark' ? 'white' : 'black' }}>{t('lng')}: {item.longitude}</Text>
-                    <Text style={{ color: theme === 'dark' ? 'white' : 'black' }}>{t('description')}: {item.description}</Text>
-                    <Text style={{ color: theme === 'dark' ? 'white' : 'black' }}>{t('created')}: {item.created_at}</Text>
-                </View>
-            ))}
         </ScrollView>
     )
 }
@@ -160,15 +149,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginVertical: 10,
     },
-    buttonText: { color: 'white', fontSize: 16 },
-    image: { width: 200, height: 150, resizeMode: 'contain', marginVertical: 10 },
-    input: { borderWidth: 1, borderRadius: 5, padding: 10, marginVertical: 10 },
-    listItem: {
-        marginBottom: 20,
-        padding: 10,
-        borderWidth: 1,
-        borderColor: 'gray',
-        borderRadius: 5,
+    buttonText: {
+        color: 'white',
+        fontSize: 16
     },
-    listImage: { width: 100, height: 75, resizeMode: 'contain', marginBottom: 5 },
+    image: {
+        width: 200,
+        height: 150,
+        resizeMode: 'contain',
+        marginVertical: 10
+    },
+    input: {
+        borderWidth: 1,
+        borderRadius: 5,
+        padding: 10,
+        marginVertical: 10
+    },
 })
