@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, Button, Alert } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useTranslation } from 'react-i18next'
 import { useThemeContext } from '../ThemeContext'
@@ -19,9 +19,7 @@ export default function ProfileScreen({ navigation }) {
         if (net.isConnected && parsedUser) {
             try {
                 const response = await loginUser({ email: parsedUser.email, password: parsedUser.password })
-                if (response.data?.user) {
-                    parsedUser = response.data.user
-                }
+                if (response.data?.user) parsedUser = response.data.user
             } catch (e) {
                 console.log('Server auth failed, using local data')
             }
@@ -42,34 +40,78 @@ export default function ProfileScreen({ navigation }) {
     }
 
     return (
-        <View style={{
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: theme === 'dark' ? 'black' : 'white'
-        }}>
+        <View style={[styles.container, { backgroundColor: theme === 'dark' ? '#121212' : '#f5f5f5' }]}>
             {user ? (
-                <>
-                    <Text style={{ color: theme === 'dark' ? 'white' : 'black', fontSize: 18 }}>
-                        {t('profile')}
-                    </Text>
-                    <Text style={{ color: theme === 'dark' ? 'white' : 'black' }}>
-                        Email: {user.email}
-                    </Text>
-                    <Text style={{ color: theme === 'dark' ? 'white' : 'black' }}>
-                        Password: {user.password}
-                    </Text>
-                    <Button title="Logout" onPress={handleLogout} />
-                </>
+                <View style={styles.card}>
+                    <Text style={[styles.title, { color: theme === 'dark' ? '#fff' : '#333' }]}>{t('profile')}</Text>
+                    <Text style={[styles.text, { color: theme === 'dark' ? '#ddd' : '#555' }]}>Email: {user.email}</Text>
+                    <Text style={[styles.text, { color: theme === 'dark' ? '#ddd' : '#555' }]}>Password: {user.password}</Text>
+                    <TouchableOpacity style={styles.button} onPress={handleLogout}>
+                        <Text style={styles.buttonText}>{t('logout')}</Text>
+                    </TouchableOpacity>
+                </View>
             ) : (
-                <>
-                    <Text style={{ color: theme === 'dark' ? 'white' : 'black', fontSize: 18 }}>
+                <View style={styles.card}>
+                    <Text style={[styles.title, { color: theme === 'dark' ? '#fff' : '#333' }]}>
                         {t('profile')} ({t('guest')})
                     </Text>
-                    <Button title="Login" onPress={() => navigation.navigate('Login')} />
-                    <Button title="Register" onPress={() => navigation.navigate('Register')} />
-                </>
+                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Login')}>
+                        <Text style={styles.buttonText}>{t('login')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Register')}>
+                        <Text style={styles.buttonText}>{t('register')}</Text>
+                    </TouchableOpacity>
+                </View>
             )}
         </View>
     )
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    card: {
+        width: '100%',
+        padding: 20,
+        borderRadius: 16,
+        backgroundColor: '#fff',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 5,
+        alignItems: 'center',
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        marginBottom: 15,
+    },
+    text: {
+        fontSize: 16,
+        marginBottom: 8,
+    },
+    button: {
+        backgroundColor: '#007AFF',
+        paddingVertical: 12,
+        paddingHorizontal: 25,
+        borderRadius: 12,
+        alignItems: 'center',
+        marginTop: 15,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
+        elevation: 3,
+        width: '80%',
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+})

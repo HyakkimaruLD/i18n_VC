@@ -114,20 +114,23 @@ export default function NewScreen() {
     }
 
     return (
-        <ScrollView style={[styles.container, { backgroundColor: theme === 'dark' ? 'black' : 'white' }]}>
-            <Text style={{ color: theme === 'dark' ? 'white' : 'black', fontSize: 18, marginBottom: 10 }}>
-                {t('new')}
-            </Text>
+        <ScrollView style={[styles.container, { backgroundColor: theme === 'dark' ? '#121212' : '#f5f5f5' }]}>
+            <Text style={[styles.title, { color: theme === 'dark' ? '#fff' : '#333' }]}>{t('new')}</Text>
 
             <TouchableOpacity style={styles.button} onPress={pickImage}>
                 <Text style={styles.buttonText}>{t('take_photo')}</Text>
             </TouchableOpacity>
+
             {photoUri && <Image source={{ uri: photoUri }} style={styles.image} />}
 
             <TextInput
-                style={[styles.input, { color: theme === 'dark' ? 'white' : 'black', borderColor: theme === 'dark' ? 'gray' : 'lightgray' }]}
+                style={[styles.input, {
+                    color: theme === 'dark' ? '#fff' : '#333',
+                    borderColor: theme === 'dark' ? '#555' : '#ccc',
+                    backgroundColor: theme === 'dark' ? '#1e1e1e' : '#fff'
+                }]}
                 placeholder={t('description')}
-                placeholderTextColor={theme === 'dark' ? 'gray' : 'darkgray'}
+                placeholderTextColor={theme === 'dark' ? '#aaa' : '#888'}
                 value={description}
                 onChangeText={setDescription}
                 multiline
@@ -141,28 +144,58 @@ export default function NewScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 20 },
+    container: {
+        flex: 1,
+        padding: 20,
+        backgroundColor: '#f5f5f5',
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        color: '#333',
+    },
     button: {
         backgroundColor: '#007AFF',
-        padding: 10,
-        borderRadius: 5,
+        paddingVertical: 14,
+        paddingHorizontal: 20,
+        borderRadius: 12,
         alignItems: 'center',
-        marginVertical: 10,
+        marginVertical: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 5,
     },
     buttonText: {
-        color: 'white',
-        fontSize: 16
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
     },
     image: {
-        width: 200,
-        height: 150,
-        resizeMode: 'contain',
-        marginVertical: 10
+        width: '100%',
+        height: 200,
+        borderRadius: 12,
+        resizeMode: 'cover',
+        marginVertical: 15,
+        borderWidth: 1,
+        borderColor: '#ddd',
     },
     input: {
         borderWidth: 1,
-        borderRadius: 5,
-        padding: 10,
-        marginVertical: 10
-    },
+        borderColor: '#ccc',
+        borderRadius: 12,
+        padding: 14,
+        fontSize: 16,
+        backgroundColor: '#fff',
+        color: '#333',
+        marginVertical: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
+    }
 })
+

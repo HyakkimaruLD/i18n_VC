@@ -16,6 +16,7 @@ export class ViolationController {
             ctx.body = { error: 'Validation failed', details: errors }
             return
         }
+
         const created = await this.service.create(dto)
         ctx.status = 201
         ctx.body = created

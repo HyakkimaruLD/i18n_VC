@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, Text, Modal, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native'
 import MapView, { Marker } from 'react-native-maps'
 import { useThemeContext } from '../ThemeContext'
 import { useTranslation } from 'react-i18next'
-import { loadViolations } from '../database'
+import { getViolations } from '../api/violationApi'
 import * as Location from 'expo-location'
+import { useFocusEffect } from '@react-navigation/native'
 
 export default function MapScreen() {
     const { theme } = useThemeContext()
@@ -13,13 +14,21 @@ export default function MapScreen() {
     const [selected, setSelected] = useState(null)
     const [region, setRegion] = useState(null)
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const data = await loadViolations()
-            setViolations(data)
+    const fetchData = async () => {
+        try {
+            const response = await getViolations()
+            setViolations(response.data)
+        } catch (error) {
+            Alert.alert(t('error'), t('failed_to_load_violations'))
+            console.error('Error fetching violations:', error)
         }
-        fetchData()
-    }, [])
+    }
+
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchData()
+        }, [])
+    )
 
     useEffect(() => {
         const getLocation = async () => {
