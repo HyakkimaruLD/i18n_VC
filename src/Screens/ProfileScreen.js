@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useTranslation } from 'react-i18next'
@@ -20,7 +20,8 @@ export default function ProfileScreen({ navigation }) {
             try {
                 const response = await loginUser({ email: parsedUser.email, password: parsedUser.password })
                 if (response.data?.user) parsedUser = response.data.user
-            } catch (e) {
+            }
+            catch (e) {
                 console.log('Server auth failed, using local data')
             }
         }
@@ -39,20 +40,24 @@ export default function ProfileScreen({ navigation }) {
         Alert.alert(t('logged_out'))
     }
 
+    const cardBackground = theme === 'dark' ? '#1e1e1e' : '#fff'
+    const textColor = theme === 'dark' ? '#ddd' : '#555'
+    const titleColor = theme === 'dark' ? '#fff' : '#333'
+
     return (
         <View style={[styles.container, { backgroundColor: theme === 'dark' ? '#121212' : '#f5f5f5' }]}>
             {user ? (
-                <View style={styles.card}>
-                    <Text style={[styles.title, { color: theme === 'dark' ? '#fff' : '#333' }]}>{t('profile')}</Text>
-                    <Text style={[styles.text, { color: theme === 'dark' ? '#ddd' : '#555' }]}>Email: {user.email}</Text>
-                    <Text style={[styles.text, { color: theme === 'dark' ? '#ddd' : '#555' }]}>Password: {user.password}</Text>
+                <View style={[styles.card, { backgroundColor: cardBackground }]}>
+                    <Text style={[styles.title, { color: titleColor }]}>{t('profile')}</Text>
+                    <Text style={[styles.text, { color: textColor }]}>Email: {user.email}</Text>
+                    <Text style={[styles.text, { color: textColor }]}>Password: {user.password}</Text>
                     <TouchableOpacity style={styles.button} onPress={handleLogout}>
                         <Text style={styles.buttonText}>{t('logout')}</Text>
                     </TouchableOpacity>
                 </View>
             ) : (
-                <View style={styles.card}>
-                    <Text style={[styles.title, { color: theme === 'dark' ? '#fff' : '#333' }]}>
+                <View style={[styles.card, { backgroundColor: cardBackground }]}>
+                    <Text style={[styles.title, { color: titleColor }]}>
                         {t('profile')} ({t('guest')})
                     </Text>
                     <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Login')}>
@@ -78,7 +83,6 @@ const styles = StyleSheet.create({
         width: '100%',
         padding: 20,
         borderRadius: 16,
-        backgroundColor: '#fff',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.1,

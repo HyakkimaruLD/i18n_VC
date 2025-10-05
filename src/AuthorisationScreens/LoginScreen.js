@@ -3,6 +3,7 @@ import { View, Text, TextInput, Alert, TouchableOpacity, StyleSheet } from 'reac
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import NetInfo from '@react-native-community/netinfo'
 import { loginUser as loginUserAPI } from '../api/authApi'
+import { registerUser as registerUserLocal } from '../database'
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('')
@@ -18,7 +19,8 @@ export default function LoginScreen({ navigation }) {
                 if (response.data?.ok && response.data.user) {
                     const loggedUser = { email: response.data.user.email, password }
                     await AsyncStorage.setItem('loggedInUser', JSON.stringify(loggedUser))
-                    Alert.alert('Success', 'Logged in online!')
+                    await registerUserLocal(loggedUser.email, loggedUser.password)
+                    Alert.alert('Success', 'Logged in online and saved locally!')
                     navigation.replace('Main')
                     return
                 } else {
@@ -73,14 +75,14 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         padding: 20,
-        backgroundColor: '#e8f0fe'
+        backgroundColor: '#e8f0fe',
     },
     title: {
         fontSize: 32,
         fontWeight: 'bold',
         marginBottom: 30,
         textAlign: 'center',
-        color: '#333'
+        color: '#333',
     },
     input: {
         height: 50,
@@ -90,7 +92,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         marginBottom: 20,
         backgroundColor: '#fff',
-        fontSize: 16
+        fontSize: 16,
     },
     button: {
         height: 50,
@@ -100,13 +102,16 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         shadowColor: '#000',
         shadowOpacity: 0.2,
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
         shadowRadius: 4,
-        elevation: 3
+        elevation: 3,
     },
     buttonText: {
         color: '#fff',
         fontSize: 18,
-        fontWeight: 'bold'
-    }
+        fontWeight: 'bold',
+    },
 })

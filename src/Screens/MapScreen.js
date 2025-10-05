@@ -3,9 +3,11 @@ import { View, Text, Modal, Image, TouchableOpacity, StyleSheet, Alert } from 'r
 import MapView, { Marker } from 'react-native-maps'
 import { useThemeContext } from '../ThemeContext'
 import { useTranslation } from 'react-i18next'
-import { getViolations } from '../api/violationApi'
 import * as Location from 'expo-location'
 import { useFocusEffect } from '@react-navigation/native'
+import NetInfo from '@react-native-community/netinfo'
+import { getViolations } from '../api/violationApi'
+import { loadViolations } from '../database'
 
 export default function MapScreen() {
     const { theme } = useThemeContext()
@@ -15,12 +17,24 @@ export default function MapScreen() {
     const [region, setRegion] = useState(null)
 
     const fetchData = async () => {
-        try {
-            const response = await getViolations()
-            setViolations(response.data)
-        } catch (error) {
-            Alert.alert(t('error'), t('failed_to_load_violations'))
-            console.error('Error fetching violations:', error)
+        const net = await NetInfo.fetch()
+
+        if (net.isConnected) {
+            try {
+                const response = await getViolations()
+                setViolations(response.data)
+            } catch (error) {
+                console.log('Server fetch failed, loading local violations:', error.message)
+                const localData = await loadViolations()
+                setViolations(localData)
+            }
+        } else {
+            try {
+                const localData = await loadViolations()
+                setViolations(localData)
+            } catch (error) {
+                console.log('Error loading local violations:', error.message)
+            }
         }
     }
 

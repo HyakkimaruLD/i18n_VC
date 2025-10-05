@@ -3,12 +3,19 @@ import { View, Text, TextInput, Alert, TouchableOpacity, StyleSheet } from 'reac
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import NetInfo from '@react-native-community/netinfo'
 import { registerUser as registerUserAPI } from '../api/authApi'
+import { registerUser as registerUserLocal } from '../database'
 
 export default function RegisterScreen({ navigation }) {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
 
     const handleRegister = async () => {
+        if (password !== confirmPassword) {
+            Alert.alert('Error', 'Passwords do not match!')
+            return
+        }
+
         const userData = { email, password }
         const net = await NetInfo.fetch()
 
@@ -16,6 +23,7 @@ export default function RegisterScreen({ navigation }) {
             try {
                 const response = await registerUserAPI(userData)
                 if (response.data?.ok) {
+                    await registerUserLocal(email, password)
                     await AsyncStorage.setItem('loggedInUser', JSON.stringify(userData))
                     Alert.alert('Success', 'User registered online and logged in!')
                     navigation.replace('Main')
@@ -29,6 +37,7 @@ export default function RegisterScreen({ navigation }) {
             }
         }
 
+        await registerUserLocal(email, password)
         await AsyncStorage.setItem('loggedInUser', JSON.stringify(userData))
         Alert.alert('Success', 'User registered locally (offline)!')
         navigation.replace('Main')
@@ -50,6 +59,13 @@ export default function RegisterScreen({ navigation }) {
                 placeholder="Password"
                 value={password}
                 onChangeText={setPassword}
+                secureTextEntry
+            />
+            <TextInput
+                style={styles.input}
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
                 secureTextEntry
             />
             <TouchableOpacity style={styles.button} onPress={handleRegister}>

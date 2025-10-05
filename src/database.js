@@ -13,20 +13,21 @@ export async function initDatabase() {
     const db = await getDb()
     await db.execAsync(`
         CREATE TABLE IF NOT EXISTS violations (
-                                                  id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                                  photo_uri TEXT,
-                                                  latitude REAL,
-                                                  longitude REAL,
-                                                  description TEXT,
-                                                  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            photo_uri TEXT,
+            latitude REAL,
+            longitude REAL,
+            description TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            synced INTEGER DEFAULT 0
         );
     `)
 
     await db.execAsync(`
         CREATE TABLE IF NOT EXISTS users (
-                                             id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                             email TEXT UNIQUE,
-                                             password TEXT
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE,
+            password TEXT
         );
     `)
 }
@@ -34,7 +35,7 @@ export async function initDatabase() {
 export async function insertViolation(photoUri, latitude, longitude, description) {
     const db = await getDb()
     await db.runAsync(
-        'INSERT INTO violations (photo_uri, latitude, longitude, description) VALUES (?, ?, ?, ?);',
+        'INSERT INTO violations (photo_uri, latitude, longitude, description, synced) VALUES (?, ?, ?, ?, 0);',
         [photoUri, latitude, longitude, description]
     )
 }
@@ -42,6 +43,16 @@ export async function insertViolation(photoUri, latitude, longitude, description
 export async function loadViolations() {
     const db = await getDb()
     return await db.getAllAsync('SELECT * FROM violations;')
+}
+
+export async function loadUnsyncedViolations() {
+    const db = await getDb()
+    return await db.getAllAsync('SELECT * FROM violations WHERE synced = 0;')
+}
+
+export async function markViolationAsSynced(id) {
+    const db = await getDb()
+    await db.runAsync('UPDATE violations SET synced = 1 WHERE id = ?;', [id])
 }
 
 export async function loadViolationsByDate(date) {

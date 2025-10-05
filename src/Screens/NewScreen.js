@@ -5,36 +5,54 @@ import { useState, useEffect } from 'react'
 import * as ImagePicker from 'expo-image-picker'
 import * as Location from 'expo-location'
 import NetInfo from '@react-native-community/netinfo'
-import { initDatabase, insertViolation, loadViolations } from '../database'
+import { initDatabase, insertViolation, loadViolations, loadUnsyncedViolations, markViolationAsSynced, loginUser } from '../database'
 import { createViolation } from '../api/violationApi'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
-export default function NewScreen() {
+export default function NewScreen({ navigation }) {
     const { theme } = useThemeContext()
     const { t } = useTranslation()
     const [photoUri, setPhotoUri] = useState(null)
     const [coords, setCoords] = useState(null)
     const [description, setDescription] = useState('')
     const [violations, setViolations] = useState([])
+    const [isRegistered, setIsRegistered] = useState(false)
+    const [hasOfflineViolations, setHasOfflineViolations] = useState(false)
 
-    useEffect(() => {
-        const setup = async () => {
-            await initDatabase()
-            const data = await loadViolations()
-            setViolations(data)
+    const checkUser = async () => {
+        await initDatabase()
 
-            let { status } = await Location.requestForegroundPermissionsAsync()
-            if (status === 'granted') {
-                let location = await Location.getCurrentPositionAsync({})
-                setCoords({
-                    latitude: location.coords.latitude,
-                    longitude: location.coords.longitude,
-                })
-            } else {
-                Alert.alert(t('permission_required'), t('location_permission_needed'))
+        const storedUser = await AsyncStorage.getItem('loggedInUser')
+        if (storedUser) {
+            const { email, password } = JSON.parse(storedUser)
+            const user = await loginUser(email, password)
+            if (user) {
+                setIsRegistered(true)
+
+                const data = await loadViolations()
+                setViolations(data)
+                setHasOfflineViolations(data.some(v => v.synced === 0))
+
+                let { status } = await Location.requestForegroundPermissionsAsync()
+                if (status === 'granted') {
+                    let location = await Location.getCurrentPositionAsync({})
+                    setCoords({
+                        latitude: location.coords.latitude,
+                        longitude: location.coords.longitude,
+                    })
+                } else {
+                    Alert.alert(t('permission_required'), t('location_permission_needed'))
+                }
+                return
             }
         }
-        setup()
-    }, [])
+        setIsRegistered(false)
+    }
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', checkUser)
+        return unsubscribe
+    }, [navigation])
 
     const pickImage = async () => {
         const { status } = await ImagePicker.requestCameraPermissionsAsync()
@@ -76,7 +94,8 @@ export default function NewScreen() {
                 { method: 'POST', body: formData })
             const data = await response.json()
             return data.secure_url || null
-        } catch (error) {
+        }
+        catch (error) {
             console.log('Upload failed:', error)
             return null
         }
@@ -94,12 +113,21 @@ export default function NewScreen() {
 
             const net = await NetInfo.fetch()
             if (net.isConnected) {
-                await createViolation({
-                    photo_uri: cloudUrl || photoUri,
-                    latitude: coords.latitude,
-                    longitude: coords.longitude,
-                    description
-                })
+                const offlineViolations = await loadUnsyncedViolations()
+                for (let v of offlineViolations) {
+                    try {
+                        await createViolation({
+                            photo_uri: v.photo_uri,
+                            latitude: v.latitude,
+                            longitude: v.longitude,
+                            description: v.description
+                        })
+                        await markViolationAsSynced(v.id)
+                    }
+                    catch (err) {
+                        console.log('Skipping network error:', err.message)
+                    }
+                }
             }
 
             Alert.alert(t('success'), t('violation_saved'))
@@ -107,10 +135,58 @@ export default function NewScreen() {
             setDescription('')
             const data = await loadViolations()
             setViolations(data)
-        } catch (error) {
-            console.error('Error saving violation:', error)
+            setHasOfflineViolations(data.some(v => v.synced === 0))
+        }
+        catch (error) {
+            console.error('Error saving violation locally:', error)
             Alert.alert(t('error'), t('failed_to_save_violation'))
         }
+    }
+
+    const synchronize = async () => {
+        try {
+            const offlineViolations = await loadUnsyncedViolations()
+            if (!offlineViolations.length) return
+
+            for (let v of offlineViolations) {
+                try {
+                    await createViolation({
+                        photo_uri: v.photo_uri,
+                        latitude: v.latitude,
+                        longitude: v.longitude,
+                        description: v.description
+                    })
+                    await markViolationAsSynced(v.id)
+                } catch (err) {
+                    console.log('Skipping network error:', err.message)
+                }
+            }
+
+            Alert.alert(t('success'), t('offline_violations_synced'))
+            const data = await loadViolations()
+            setViolations(data)
+            setHasOfflineViolations(data.some(v => v.synced === 0))
+        } catch (error) {
+            console.error('Sync failed:', error)
+        }
+    }
+
+    if (!isRegistered) {
+        return (
+            <View style={styles.centered}>
+                <View style={[styles.warningBox, { backgroundColor: theme === 'dark' ? '#2c2c2c' : '#ffe6e6' }]}>
+                    <Text style={[styles.warningText, { color: theme === 'dark' ? '#ff6666' : '#cc0000' }]}>
+                        Only for registered users
+                    </Text>
+                </View>
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => navigation.navigate('Login')}
+                >
+                    <Text style={styles.buttonText}>{t('login')}</Text>
+                </TouchableOpacity>
+            </View>
+        )
     }
 
     return (
@@ -139,6 +215,12 @@ export default function NewScreen() {
             <TouchableOpacity style={styles.button} onPress={saveViolation}>
                 <Text style={styles.buttonText}>{t('save_violation')}</Text>
             </TouchableOpacity>
+
+            {hasOfflineViolations && (
+                <TouchableOpacity style={[styles.button, { backgroundColor: '#28a745' }]} onPress={synchronize}>
+                    <Text style={styles.buttonText}>{t('synchronize')}</Text>
+                </TouchableOpacity>
+            )}
         </ScrollView>
     )
 }
@@ -196,6 +278,33 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 2,
         elevation: 2,
+    },
+    centered: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    errorText: {
+        fontSize: 18,
+        color: 'red',
+        fontWeight: 'bold'
+    },
+    warningBox: {
+        padding: 20,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: '#ff4d4d',
+        marginBottom: 20,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 4,
+    },
+    warningText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        textAlign: 'center',
     }
 })
-
